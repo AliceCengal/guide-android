@@ -50,8 +50,8 @@ public class GuideMain extends Activity {
         		PlaceTabFragment.class, null);
         mTabsAdapter.addTab(mAction.newTab().setText("Agenda"),
         		AgendaFragment.class, null);
-        mTabsAdapter.addTab(mAction.newTab().setText("Tours"),
-        		TourFragment.class, null);
+//        mTabsAdapter.addTab(mAction.newTab().setText("Tours"),
+//        		TourFragment.class, null);
         
         if (savedInstanceState != null) {
             mAction.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
