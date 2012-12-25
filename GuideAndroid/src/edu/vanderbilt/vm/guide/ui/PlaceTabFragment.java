@@ -30,6 +30,7 @@ import edu.vanderbilt.vm.guide.R;
 import edu.vanderbilt.vm.guide.container.Place;
 import edu.vanderbilt.vm.guide.db.GuideDBConstants;
 import edu.vanderbilt.vm.guide.db.GuideDBOpenHelper;
+import edu.vanderbilt.vm.guide.ui.adapter.AgendaAdapter;
 import edu.vanderbilt.vm.guide.ui.adapter.PlaceListAdapter;
 import edu.vanderbilt.vm.guide.util.DBUtils;
 import edu.vanderbilt.vm.guide.util.Geomancer;
@@ -48,13 +49,10 @@ public class PlaceTabFragment extends Fragment implements OnClickListener {
 	private Menu mMenu;
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+	public View onCreateView(LayoutInflater inflatr, ViewGroup containr,
 			Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		
-		View fragView = inflater.inflate(R.layout.fragment_place_list, container, false);
-		fragView.setId(2012);
-		return fragView;
+		return inflatr.inflate(R.layout.fragment_place_list, containr, false);
 	}
 
 	@Override
@@ -69,22 +67,8 @@ public class PlaceTabFragment extends Fragment implements OnClickListener {
 		mListView = (ListView) getActivity()
 				.findViewById(R.id.placeTablistView);
 		
-		GuideDBOpenHelper helper = new GuideDBOpenHelper(getActivity());
-		String[] columns = { GuideDBConstants.PlaceTable.NAME_COL,
-				GuideDBConstants.PlaceTable.CATEGORY_COL,
-				GuideDBConstants.PlaceTable.ID_COL };
-		Cursor cursor = DBUtils.getAllPlaces(columns, helper.getReadableDatabase());
-		
-		ArrayList<Place> placeList = new ArrayList<Place>();
-		cursor.moveToFirst();
-		while (!cursor.isLast()) {
-			placeList.add(DBUtils.getPlaceFromCursor(cursor));
-			cursor.moveToNext();
-		}
-		placeList.add(DBUtils.getPlaceFromCursor(cursor));
-		helper.close();
-		
-		mListView.setAdapter(new PlaceListAdapter(getActivity(), placeList));
+		mListView.setAdapter(new AgendaAdapter(getActivity(), 
+				GlobalState.getAllPlace(getActivity())));
 		mListView.setOnItemClickListener(new OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,

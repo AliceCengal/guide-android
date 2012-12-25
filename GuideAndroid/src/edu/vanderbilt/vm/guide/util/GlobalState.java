@@ -1,16 +1,19 @@
 package edu.vanderbilt.vm.guide.util;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import android.content.Context;
+import android.database.Cursor;
 import edu.vanderbilt.vm.guide.annotations.NeedsTesting;
 import edu.vanderbilt.vm.guide.container.Agenda;
 import edu.vanderbilt.vm.guide.container.Place;
 import edu.vanderbilt.vm.guide.db.GuideDBConstants;
+import edu.vanderbilt.vm.guide.db.GuideDBOpenHelper;
 
 /**
  * This class holds singletons of certain objects we need to share throughout
@@ -143,4 +146,27 @@ public class GlobalState {
 		userHistory.add(temp);
 	}
 	// END History Singleton
+	
+	// Place list by Agenda
+	private static Agenda newPlaceList = new Agenda();
+	
+	public static Agenda getAllPlace(Context ctx) {
+		if (newPlaceList.size() == 0) {
+			
+			GuideDBOpenHelper helper = new GuideDBOpenHelper(ctx);
+			String[] columns = { GuideDBConstants.PlaceTable.NAME_COL,
+					GuideDBConstants.PlaceTable.CATEGORY_COL,
+					GuideDBConstants.PlaceTable.ID_COL };
+			Cursor cursor = DBUtils.getAllPlaces(columns, helper.getReadableDatabase());
+			
+			cursor.moveToFirst();
+			while (!cursor.isLast()) {
+				newPlaceList.add(DBUtils.getPlaceFromCursor(cursor));
+				cursor.moveToNext();
+			}
+			newPlaceList.add(DBUtils.getPlaceFromCursor(cursor));
+			helper.close();
+		}
+		return newPlaceList;
+	}
 }

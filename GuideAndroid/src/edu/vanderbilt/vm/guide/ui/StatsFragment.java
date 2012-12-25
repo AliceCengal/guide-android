@@ -10,6 +10,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -51,14 +52,19 @@ public class StatsFragment extends Fragment {
 							Toast.LENGTH_SHORT).show();
 					return;
 				}
-				Intent i = new Intent()
-						.setClass(getActivity(), PlaceDetailer.class)
-						.putExtra(GuideConstants.PLACE_ID_EXTRA, 
-								place.getUniqueId());
-				startActivity(i);
+				PlaceDetailer.open(getActivity(), place.getUniqueId());
 			}
 			
 		});
 		
 	}
+	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		
+		default: return false;
+		}
+		
+	}
+	
 }
