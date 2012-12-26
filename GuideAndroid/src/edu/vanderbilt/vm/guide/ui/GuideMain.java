@@ -16,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.Toast;
 import edu.vanderbilt.vm.guide.R;
+import edu.vanderbilt.vm.guide.container.Agenda;
 import edu.vanderbilt.vm.guide.container.Place;
 import edu.vanderbilt.vm.guide.ui.adapter.SwipingTabsAdapter;
 import edu.vanderbilt.vm.guide.ui.listener.ActivityTabListener;
@@ -39,6 +40,7 @@ public class GuideMain extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		Geomancer.activateGeolocation(this);
+		Agenda temp = GlobalState.getAllPlace(this);
 		setContentView(R.layout.activity_guide_main);
 
         setupActionBar();

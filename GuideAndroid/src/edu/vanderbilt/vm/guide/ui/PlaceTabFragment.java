@@ -84,8 +84,7 @@ public class PlaceTabFragment extends Fragment implements OnClickListener {
 		Location loc = Geomancer.getDeviceLocation();
 		mCurrPlace = null;
 		if (loc != null) {
-			setCurrentPlace(Geomancer.findClosestPlace(loc,
-					GlobalState.getPlaceList(getActivity())));
+			setCurrentPlace(Geomancer.findClosestPlace(loc));
 		}
 		
 		// Prevent the soft keyboard from popping up at startup.
@@ -143,13 +142,15 @@ public class PlaceTabFragment extends Fragment implements OnClickListener {
 			return true;
 		
 		case R.id.menu_sort_alphabetic:
-			
+			GlobalState.getAllPlace(getActivity()).sortAlphabetically();
+			this.mListView.invalidateViews();
 			Toast.makeText(getActivity(), "PlacesList is sorted alphabetically",
 					Toast.LENGTH_SHORT).show();
 			return true;
 			
 		case R.id.menu_sort_distance:
-			
+			GlobalState.getAllPlace(getActivity()).sortByDistance();
+			this.mListView.invalidateViews();
 			Toast.makeText(getActivity(), "PlacesList is sorted by distance",
 					Toast.LENGTH_SHORT).show();
 			return true;

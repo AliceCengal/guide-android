@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.vanderbilt.vm.guide.annotations.NeedsTesting;
+import edu.vanderbilt.vm.guide.container.Agenda;
 import edu.vanderbilt.vm.guide.container.Place;
 
 import android.content.Context;
@@ -61,17 +62,17 @@ public class Geomancer {
 	 * in a custom List, like the nearest academic building or the nearest
 	 * buiding that has a tornado shelter (GASP!!!)
 	 * @param location
-	 * @param placeList
+	 * @param list
 	 * @return
 	 */
-	public static Place findClosestPlace(Location location, List<Place> placeList) {
+	public static Place findClosestPlace(Location location, Agenda list) {
 		double CurrDist = Double.MAX_VALUE;
 		int count = 0;
 
-		for (int n = 0; n < placeList.size(); n++) {
+		for (int n = 0; n < list.size(); n++) {
 			double dist = findDistance(
-					placeList.get(n).getLatitude(),
-					placeList.get(n).getLongitude(), 
+					list.get(n).getLatitude(),
+					list.get(n).getLongitude(), 
 					location.getLatitude(),
 					location.getLongitude());
 			if (dist < CurrDist) {
@@ -79,9 +80,13 @@ public class Geomancer {
 				count = n;
 			}
 		}
-		Place result = placeList.get(count);
+		Place result = list.get(count);
 		logger.trace("Closest is {} at position {}", result.getName(), count);
-		return placeList.get(count);
+		return list.get(count);
+	}
+	
+	public static Place findClosestPlace(Location location) {
+		return findClosestPlace(location, GlobalState.getAllPlace(null));
 	}
 
 	public static void activateGeolocation(Context context) {
