@@ -41,8 +41,6 @@ public class AgendaFragment extends SherlockFragment implements GeomancerListene
     
     private Place mCurrentPlace;
     
-    private ImageDownloader.BitmapDownloaderTask mDlTask = null;
-    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mRoot = inflater.inflate(R.layout.fragment_agenda, container, false);
@@ -103,6 +101,7 @@ public class AgendaFragment extends SherlockFragment implements GeomancerListene
         }
     }
 */
+    
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -122,15 +121,6 @@ public class AgendaFragment extends SherlockFragment implements GeomancerListene
                 
             default:
                 return false;
-        }
-    }
-    
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mDlTask != null) {
-            logger.trace("Cancelling image download task");
-            mDlTask.cancel(true);
         }
     }
     
@@ -161,12 +151,29 @@ public class AgendaFragment extends SherlockFragment implements GeomancerListene
                 Html.fromHtml("<b>" + mCurrentPlace.getName() + "</b> " + desc));
         
         ImageView iv = (ImageView)mRoot.findViewById(R.id.current_img);
-        mDlTask = new ImageDownloader.BitmapDownloaderTask(iv);
-        logger.trace("Starting image download task");
-        mDlTask.execute(mCurrentPlace.getPictureLoc());
+        //ImageDownloader.dispatchImage(mCurrentPlace.getPictureLoc(), iv);
 
-        
-        
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -41,8 +41,6 @@ public class PlaceDetailerFragment extends SherlockFragment {
 
     private Menu mMenu;
 
-    private ImageDownloader.BitmapDownloaderTask mDlTask;
-
     private boolean isOnAgenda = false;
 
     private static final Logger logger = LoggerFactory.getLogger("ui.PlaceDetailerFragment");
@@ -108,15 +106,6 @@ public class PlaceDetailerFragment extends SherlockFragment {
     public void onResume() {
         super.onResume();
         updateInformation();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (mDlTask != null) {
-            logger.trace("Cancelling image download task");
-            mDlTask.cancel(true);
-        }
     }
 
     @Override
@@ -194,8 +183,7 @@ public class PlaceDetailerFragment extends SherlockFragment {
         tvPlaceDesc.setText(mPlace.getDescription());
 
         logger.trace("Starting image download task");
-        mDlTask = new ImageDownloader.BitmapDownloaderTask(ivPlaceImage);
-        mDlTask.execute(mPlace.getPictureLoc());
+        //ImageDownloader.dispatchImage(mPlace.getPictureLoc(), ivPlaceImage);
     }
 
     private static Place getPlaceById(Context ctx, int id) {

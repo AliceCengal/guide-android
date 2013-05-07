@@ -20,6 +20,7 @@ import edu.vanderbilt.vm.guide.ui.SearchDialog.SearchConfigReceiver;
 import edu.vanderbilt.vm.guide.ui.listener.FragmentTabListener;
 import edu.vanderbilt.vm.guide.util.Geomancer;
 import edu.vanderbilt.vm.guide.util.GuideConstants;
+import edu.vanderbilt.vm.guide.util.ImageDownloader;
 
 /**
  * The main Activity of the Guide app. Contains the 4 main tabs: Map, Tours,
@@ -43,6 +44,8 @@ public class GuideMain extends SherlockFragmentActivity implements SearchConfigR
         setupActionBar();
         
         Geomancer.activateGeolocation(this);
+        
+        ImageDownloader.initImageLoader(this);
         
         if (savedInstanceState != null) {
             mAction.setSelectedNavigationItem(savedInstanceState.getInt(TAB_CACHE, 0));
