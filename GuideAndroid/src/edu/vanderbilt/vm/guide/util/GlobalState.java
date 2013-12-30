@@ -223,7 +223,9 @@ public class GlobalState {
     }
 
     public static SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> shortestPath(
-            SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> graph, MapVertex start,
+            SimpleWeightedGraph<MapVertex, 
+            DefaultWeightedEdge> graph, 
+            MapVertex start,
             MapVertex end) {
         // Temporarily add the start and end vertices to the graph
         addVertexToGraph(graph, start);
