@@ -32,15 +32,7 @@ Build
 -----
 You can build using Maven:
 
-    $ mvn clean package
-
-This will compile the project and generate an APK. The generated APK is
-signed with the Android debug certificate. To generate a zip-aligned APK
-that is signed with an actual certificate, use:
-
-    $ mvn clean package -Prelease
-
-The configuration for which certificate to use is in pom.xml.
+    $ mvn clean install
 
 Run
 ---
