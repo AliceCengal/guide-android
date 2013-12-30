@@ -15,13 +15,15 @@ Build Notes
 * Android SDK
   - make sure `ANDROID_HOME` is set to the path to your SDK folder
   - for example, in ~/.bashrc add
-  
-    export ANDROID_HOME=/home/{path_to_the_folder}/sdk
-    export ANDROID_SDK_HOME=/home/{path_to_the_folder}/sdk
-    export ANDROID_SDK_ROOT=/home/{path_to_the_folder}/sdk
-    export ANDROID_SDK=/home/{path_to_the_folder}/sdk
-  
-  - Don't ask why. Android is always crazy.
+
+```bash  
+export ANDROID_HOME=/home/{path_to_the_folder}/sdk
+export ANDROID_SDK_HOME=/home/{path_to_the_folder}/sdk
+export ANDROID_SDK_ROOT=/home/{path_to_the_folder}/sdk
+export ANDROID_SDK=/home/{path_to_the_folder}/sdk
+```
+
+  - ^^^Don't ask why. Android is always crazy.
   
 * Install Google Play Services into your Maven repo
   - https://github.com/JakeWharton/gms-mvn-install
