@@ -1,0 +1,5 @@
+{
+  "places":"https://raw.github.com/AliceCengal/vanderbilt-data/master/places.json",
+  "tours":"https://raw.github.com/AliceCengal/vanderbilt-data/master/tours.json",
+  "nodes":"https://raw.github.com/AliceCengal/vanderbilt-data/master/nodes.json"
+}
