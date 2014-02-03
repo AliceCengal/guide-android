@@ -135,29 +135,7 @@ public class GuideMain extends SherlockFragmentActivity implements SearchConfigR
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Agenda agenda = GlobalState.getUserAgenda();
-        //LOGGER.info("onStop is called");
-        
-        try {
-            FileOutputStream fos = new FileOutputStream(
-                    getExternalFilesDir(null).getAbsolutePath() + GuideConstants.CACHE_FILENAME);
-            
-            JsonWriter writer = new JsonWriter(new OutputStreamWriter(fos));
-            
-            //LOGGER.info("Opening output stream");
-            
-            writer.beginObject();
-            writer.name(GuideConstants.CACHE_TAG_AGENDA);
-            agenda.write(writer);
-            
-            //LOGGER.info("Agenda done writing stuff");
-            
-            writer.endObject();
-            writer.flush();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
+        GlobalState.saveAgendaData(this);
     }
     
     
@@ -178,7 +156,6 @@ public class GuideMain extends SherlockFragmentActivity implements SearchConfigR
     public void receiveSearchConfig(SearchConfig config) {
         
         // TODO SQL query
-        
         
         Cursor cursor = null;
         //((PlaceTabFragment) getSupportFragmentManager().findFragmentByTag(FRAG_PLACES)).viewListFromCursor(cursor);

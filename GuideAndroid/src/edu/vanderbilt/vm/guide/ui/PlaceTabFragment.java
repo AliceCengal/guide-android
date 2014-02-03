@@ -62,7 +62,7 @@ public class PlaceTabFragment extends SherlockFragment {
                 GuideDBConstants.PlaceTable.IMAGE_LOC_COL
         };
         mAllPlacesCursor = DBUtils.getAllPlaces(
-        		columns, GlobalState.getReadableDatabase(null));
+        		columns, GlobalState.getReadableDatabase());
         
         ListView lv = (ListView) getView().findViewById(R.id.s_l_listview1);
         lv.setAdapter(new IndexedCursorAdapter(

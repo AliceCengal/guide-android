@@ -101,7 +101,7 @@ public class PlaceDetailerFragment extends SherlockFragment {
                         GuideConstants.BAD_PLACE_ID);
                 mPlace = DBUtils.getPlaceById(
                 		placeId, 
-                		GlobalState.getReadableDatabase(null));
+                		GlobalState.getReadableDatabase());
             }
         }
 

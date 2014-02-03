@@ -3,7 +3,9 @@ package edu.vanderbilt.vm.guide.util;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +26,7 @@ import android.util.SparseArray;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 
 import edu.vanderbilt.vm.guide.container.Agenda;
 import edu.vanderbilt.vm.guide.container.MapVertex;
@@ -48,6 +51,12 @@ public class GlobalState {
         throw new AssertionError("Do not instantiate this class.");
     }
 	
+	/**
+	 * This method should be called by a subclass of Application, passing
+	 * itself as Context. This will initialize the service layer of the app
+	 * associated with GlobalState.
+	 * @param ctx
+	 */
 	static void initializeGlobalState(Context ctx) {
 		GlobalState.initializeUserAgenda(ctx);
 		GlobalState.initializeDatabase(ctx);
@@ -86,6 +95,25 @@ public class GlobalState {
 		sWritableDb = sHelper.getWritableDatabase();
 	}
 	
+	public static void saveAgendaData(Context ctx) {
+		try {
+			JsonWriter writer = new JsonWriter(new OutputStreamWriter(
+					new FileOutputStream(
+							ctx.getExternalFilesDir(null).getAbsolutePath() +
+							GuideConstants.CACHE_FILENAME)));
+			
+			writer.beginObject();
+			writer.name(GuideConstants.CACHE_TAG_AGENDA);
+			getUserAgenda().write(writer);
+			writer.endObject();
+			writer.flush();
+			writer.close();
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+	}
+	
     // Agenda singleton //
     private static Agenda sUserAgendaSingleton = new Agenda();
 
@@ -99,12 +127,22 @@ public class GlobalState {
     private static SQLiteDatabase sWritableDb;
     private static GuideDBOpenHelper sHelper;
 
+    public static SQLiteDatabase getReadableDatabase() {
+    	return sReadableDb;
+    }
+    
+    public static SQLiteDatabase getWritableDatabase() {
+    	return sWritableDb;
+    }
+    
+    @Deprecated
     public static SQLiteDatabase getReadableDatabase(Context c) {
-        return sReadableDb;
+        return getReadableDatabase();
     }
 
+    @Deprecated
     public static SQLiteDatabase getWritableDatabase(Context c) {
-        return sWritableDb;
+        return getWritableDatabase();
     }
     // End database singleton //
 
@@ -126,7 +164,7 @@ public class GlobalState {
             sGraph = new SimpleWeightedGraph<MapVertex, DefaultWeightedEdge>(
                     DefaultWeightedEdge.class);
 
-            SQLiteDatabase db = getReadableDatabase(c);
+            SQLiteDatabase db = getReadableDatabase();
 
             Cursor nodeCursor = db.query(NodeTable.NODE_TABLE_NAME, new String[] {
                     NodeTable.ID_COL, NodeTable.LAT_COL, NodeTable.LON_COL, NodeTable.NEIGHBOR_COL
