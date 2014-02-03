@@ -23,33 +23,28 @@ import android.widget.ListView;
 import android.widget.Toast;
 import edu.vanderbilt.vm.guide.R;
 import edu.vanderbilt.vm.guide.db.GuideDBConstants;
-import edu.vanderbilt.vm.guide.db.GuideDBOpenHelper;
 import edu.vanderbilt.vm.guide.ui.adapter.IndexedCursorAdapter;
 import edu.vanderbilt.vm.guide.ui.adapter.PlaceCursorAdapter;
 import edu.vanderbilt.vm.guide.ui.listener.PlaceListClickListener;
 import edu.vanderbilt.vm.guide.util.DBUtils;
-
-
+import edu.vanderbilt.vm.guide.util.GlobalState;
 
 public class PlaceTabFragment extends SherlockFragment {
 
-    public void viewListFromCursor(Cursor cursor) {
-        ((ListView) mRoot.findViewById(R.id.s_l_listview1)).setAdapter(new PlaceCursorAdapter(getActivity(), cursor));
-    }
+    
     
     @SuppressWarnings("unused")
     private static final Logger LOGGER = LoggerFactory.getLogger("ui.PlaceTabFragment");
-
-    
-    private View mRoot;
     
     private Cursor mAllPlacesCursor; // A cursor holding all places in the db
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRoot = inflater.inflate(R.layout.single_list, container, false);
-        return mRoot;
+    public View onCreateView(
+    		LayoutInflater inflater, 
+    		ViewGroup container, 
+    		Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.single_list, container, false);
     }
 
     @Override
@@ -57,21 +52,24 @@ public class PlaceTabFragment extends SherlockFragment {
         super.onActivityCreated(savedInstanceState);
 
         // Query for places and setup ListView
-        GuideDBOpenHelper helper = new GuideDBOpenHelper(getActivity());
         String[] columns = {
-                GuideDBConstants.PlaceTable.NAME_COL, GuideDBConstants.PlaceTable.CATEGORY_COL,
+                GuideDBConstants.PlaceTable.NAME_COL, 
+                GuideDBConstants.PlaceTable.CATEGORY_COL,
                 GuideDBConstants.PlaceTable.LATITUDE_COL,
-                GuideDBConstants.PlaceTable.LONGITUDE_COL, GuideDBConstants.PlaceTable.ID_COL,
+                GuideDBConstants.PlaceTable.LONGITUDE_COL, 
+                GuideDBConstants.PlaceTable.ID_COL,
                 GuideDBConstants.PlaceTable.DESCRIPTION_COL,
                 GuideDBConstants.PlaceTable.IMAGE_LOC_COL
         };
-        mAllPlacesCursor = DBUtils.getAllPlaces(columns, helper.getReadableDatabase());
+        mAllPlacesCursor = DBUtils.getAllPlaces(
+        		columns, GlobalState.getReadableDatabase(null));
         
-        ListView lv = (ListView) mRoot.findViewById(R.id.s_l_listview1);
-        lv.setAdapter(new IndexedCursorAdapter(getActivity(), mAllPlacesCursor, 
+        ListView lv = (ListView) getView().findViewById(R.id.s_l_listview1);
+        lv.setAdapter(new IndexedCursorAdapter(
+        		getActivity(), 
+        		mAllPlacesCursor, 
                 IndexedCursorAdapter.SORT_ALPHABETICALLY));
         lv.setOnItemClickListener(new PlaceListClickListener(getActivity()));
-        helper.close();
 
         setHasOptionsMenu(true);
     }
@@ -84,32 +82,44 @@ public class PlaceTabFragment extends SherlockFragment {
     
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        ListView lv = (ListView) mRoot.findViewById(R.id.s_l_listview1);
+        ListView lv = (ListView) getView().findViewById(R.id.s_l_listview1);
         switch (item.getItemId()) {
             case R.id.menu_sort_alphabetic:
                 
-                lv.setAdapter(new IndexedCursorAdapter(getActivity(), mAllPlacesCursor, 
+                lv.setAdapter(new IndexedCursorAdapter(
+                		getActivity(), 
+                		mAllPlacesCursor, 
                         IndexedCursorAdapter.SORT_ALPHABETICALLY));
                 
-                Toast.makeText(getActivity(), "Places List is sorted alphabetically",
+                Toast.makeText(
+                		getActivity(), 
+                		"Places List is sorted alphabetically",
                         Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.menu_sort_distance:
                 
-                lv.setAdapter(new IndexedCursorAdapter(getActivity(), mAllPlacesCursor, 
+                lv.setAdapter(new IndexedCursorAdapter(
+                		getActivity(), 
+                		mAllPlacesCursor, 
                         IndexedCursorAdapter.SORT_BY_DISTANCE));
 
-                Toast.makeText(getActivity(), "Places List is sorted by distance",
+                Toast.makeText(
+                		getActivity(), 
+                		"Places List is sorted by distance",
                         Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.menu_sort_category:
                 
-                lv.setAdapter(new IndexedCursorAdapter(getActivity(), mAllPlacesCursor, 
+                lv.setAdapter(new IndexedCursorAdapter(
+                		getActivity(), 
+                		mAllPlacesCursor, 
                         IndexedCursorAdapter.SORT_BY_CATEGORY));
                 
-                Toast.makeText(getActivity(), "Places List is sorted by category",
+                Toast.makeText(
+                		getActivity(), 
+                		"Places List is sorted by category",
                         Toast.LENGTH_SHORT).show();
                 return true;
                 
@@ -118,6 +128,9 @@ public class PlaceTabFragment extends SherlockFragment {
         }
     }
     
-    
+    public void viewListFromCursor(Cursor cursor) {
+        ((ListView) getView().findViewById(R.id.s_l_listview1)).setAdapter(
+        		new PlaceCursorAdapter(getActivity(), cursor));
+    }
 
 }

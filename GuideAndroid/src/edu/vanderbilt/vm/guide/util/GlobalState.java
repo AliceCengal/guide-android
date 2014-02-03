@@ -1,6 +1,9 @@
 
 package edu.vanderbilt.vm.guide.util;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +23,7 @@ import android.location.Location;
 import android.util.SparseArray;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.gson.stream.JsonReader;
 
 import edu.vanderbilt.vm.guide.container.Agenda;
 import edu.vanderbilt.vm.guide.container.MapVertex;
@@ -38,51 +42,74 @@ import edu.vanderbilt.vm.guide.db.GuideDBOpenHelper;
  */
 public class GlobalState {
 
-    // Agenda singleton //
-    private static Agenda sUserAgendaSingleton = new Agenda();
-
-    private static Logger logger = LoggerFactory.getLogger("util.GlobalState");
-
-    private GlobalState() {
+	private static Logger logger = LoggerFactory.getLogger("util.GlobalState");
+	
+	private GlobalState() {
         throw new AssertionError("Do not instantiate this class.");
     }
+	
+	static void initializeGlobalState(Context ctx) {
+		GlobalState.initializeUserAgenda(ctx);
+		GlobalState.initializeDatabase(ctx);
+	}
+	
+	private static void initializeUserAgenda(Context ctx) {
+		try {
+			FileInputStream fis = new FileInputStream(
+					new File(ctx.getExternalFilesDir(null)
+							.getAbsolutePath() + 
+							GuideConstants.CACHE_FILENAME));
+			
+			JsonReader reader = new JsonReader(new InputStreamReader(fis));
+			String name;
+			
+			reader.beginObject();
+			while (reader.hasNext()) {
+				name = reader.nextName();
+				if (name.equals(GuideConstants.CACHE_TAG_AGENDA)) {
+					sUserAgendaSingleton.coalesce(Agenda.build(ctx, reader));
+				} else {
+					reader.skipValue();
+				}
+			}
+			reader.endObject();
+			reader.close();
+			
+		} catch (Exception e) {
+			logger.error(e.getMessage());
+		}
+	}
+	
+	private static void initializeDatabase(Context ctx) {
+		sHelper = new GuideDBOpenHelper(ctx);
+		sReadableDb = sHelper.getReadableDatabase();
+		sWritableDb = sHelper.getWritableDatabase();
+	}
+	
+    // Agenda singleton //
+    private static Agenda sUserAgendaSingleton = new Agenda();
 
     public static Agenda getUserAgenda() {
         return sUserAgendaSingleton;
     }
-
     // End Agenda singleton
 
     // Database singleton //
-    private static SQLiteDatabase sReadableDb, sWritableDb;
-
+    private static SQLiteDatabase sReadableDb;
+    private static SQLiteDatabase sWritableDb;
     private static GuideDBOpenHelper sHelper;
 
     public static SQLiteDatabase getReadableDatabase(Context c) {
-        if (sHelper == null) {
-            sHelper = new GuideDBOpenHelper(c.getApplicationContext());
-        }
-        if (sReadableDb == null) {
-            sReadableDb = sHelper.getReadableDatabase();
-        }
         return sReadableDb;
     }
 
     public static SQLiteDatabase getWritableDatabase(Context c) {
-        if (sHelper == null) {
-            sHelper = new GuideDBOpenHelper(c.getApplicationContext());
-        }
-        if (sWritableDb == null) {
-            sWritableDb = sHelper.getWritableDatabase();
-        }
         return sWritableDb;
     }
-
     // End database singleton //
 
     // Graph singleton //
     private static SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> sGraph;
-
     private static SparseArray<MapVertex> sVertexMap = new SparseArray<MapVertex>();
 
     /**
@@ -153,7 +180,8 @@ public class GlobalState {
         return sGraph;
     }
 
-    private static void addVertexToGraph(SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> graph,
+    private static void addVertexToGraph(
+    		SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> graph,
             MapVertex mv) {
         graph.addVertex(mv);
         for (int neighborId : mv.neighbors) {
@@ -208,12 +236,13 @@ public class GlobalState {
 
     public static SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> mst(
             SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> graph) {
-        KruskalMinimumSpanningTree<MapVertex, DefaultWeightedEdge> mstFinder = new KruskalMinimumSpanningTree<MapVertex, DefaultWeightedEdge>(
-                graph);
+        KruskalMinimumSpanningTree<MapVertex, DefaultWeightedEdge> mstFinder = 
+        		new KruskalMinimumSpanningTree<MapVertex, DefaultWeightedEdge>(graph);
 
         Set<DefaultWeightedEdge> mstEdges = mstFinder.getEdgeSet();
-        SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> mst = new SimpleWeightedGraph<MapVertex, DefaultWeightedEdge>(
-                DefaultWeightedEdge.class);
+        SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> mst = 
+        		new SimpleWeightedGraph<MapVertex, DefaultWeightedEdge>(
+        				DefaultWeightedEdge.class);
 
         for (MapVertex mv : graph.vertexSet()) {
             mst.addVertex(mv);
@@ -237,10 +266,12 @@ public class GlobalState {
         addVertexToGraph(graph, end);
 
         // Find the path
-        DijkstraShortestPath<MapVertex, DefaultWeightedEdge> pathSolver = new DijkstraShortestPath<MapVertex, DefaultWeightedEdge>(
-                graph, start, end);
-        SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> path = new SimpleWeightedGraph<MapVertex, DefaultWeightedEdge>(
-                DefaultWeightedEdge.class);
+        DijkstraShortestPath<MapVertex, DefaultWeightedEdge> pathSolver = 
+        		new DijkstraShortestPath<MapVertex, DefaultWeightedEdge>(graph, start, end);
+        SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> path = 
+        		new SimpleWeightedGraph<MapVertex, DefaultWeightedEdge>(
+        				DefaultWeightedEdge.class);
+        
         List<DefaultWeightedEdge> pathEdges = pathSolver.getPath().getEdgeList();
         for (DefaultWeightedEdge e : pathEdges) {
             MapVertex mv1 = graph.getEdgeSource(e);
@@ -264,13 +295,17 @@ public class GlobalState {
         }
         // Load the Agenda into a list for route calculation
         // Find closest place
-        List<Place> unusedPlaceList = new ArrayList<Place>(agenda.size()), orderedPlaceList = new ArrayList<Place>(
-                agenda.size());
+        List<Place> unusedPlaceList = new ArrayList<Place>(agenda.size());
+        List<Place> orderedPlaceList = new ArrayList<Place>(agenda.size());
+        
         Place closestPlace = null;
-        double minDist = Double.POSITIVE_INFINITY, deviceLat = deviceLoc.getLatitude(), deviceLon = deviceLoc
-                .getLongitude();
+        double minDist = Double.POSITIVE_INFINITY;
+        double deviceLat = deviceLoc.getLatitude();
+        double deviceLon = deviceLoc.getLongitude();
+        
         for (Place place : agenda) {
-            double dist = Geomancer.findDistance(place.getLatitude(), place.getLongitude(),
+            double dist = Geomancer.findDistance(
+            		place.getLatitude(), place.getLongitude(),
                     deviceLat, deviceLon);
             if (dist < minDist) {
                 minDist = dist;
@@ -281,15 +316,18 @@ public class GlobalState {
         
         logger.debug("Closest place to device location: {}", closestPlace.getName());
 
-        SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> rtGraph = new SimpleWeightedGraph<MapVertex, DefaultWeightedEdge>(
-                DefaultWeightedEdge.class);
+        SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> rtGraph = 
+        		new SimpleWeightedGraph<MapVertex, DefaultWeightedEdge>(DefaultWeightedEdge.class);
 
         int startNodeId = Geomancer.findClosestNodeId(deviceLoc, c);
         SimpleWeightedGraph<MapVertex, DefaultWeightedEdge> path = shortestPath(
-                getWeightedGraph(c), getMapVertexWithId(startNodeId),
+                getWeightedGraph(c), 
+                getMapVertexWithId(startNodeId),
                 getMapVertexWithId(closestPlace.getUniqueId()));
+        
         // Union the path and the route graph
         Graphs.addGraph(rtGraph, path);
+        
         // Update the place lists
         unusedPlaceList.remove(closestPlace);
         orderedPlaceList.add(closestPlace);
@@ -301,8 +339,12 @@ public class GlobalState {
             // to the route
             minDist = Double.POSITIVE_INFINITY;
             for (Place place : unusedPlaceList) {
-                double dist = Geomancer.findDistance(currentPlace.getLatitude(),
-                        currentPlace.getLongitude(), place.getLatitude(), place.getLongitude());
+                double dist = Geomancer.findDistance(
+                		currentPlace.getLatitude(),
+                        currentPlace.getLongitude(), 
+                        place.getLatitude(), 
+                        place.getLongitude());
+                
                 if (dist < minDist) {
                     closestPlace = place;
                     minDist = dist;
@@ -338,8 +380,8 @@ public class GlobalState {
         double lat2R = Math.toRadians(point2.latitude);
         double dLatR = Math.abs(lat2R - lat1R);
         double dLngR = Math.abs(Math.toRadians(point2.longitude - point1.longitude));
-        double a = Math.sin(dLatR / 2) * Math.sin(dLatR / 2) + Math.cos(lat1R) * Math.cos(lat2R)
-                * Math.sin(dLngR / 2) * Math.sin(dLngR / 2);
+        double a = Math.pow(Math.sin(dLatR / 2), 2) + 
+        		Math.cos(lat1R) * Math.cos(lat2R) * Math.pow(Math.sin(dLngR / 2), 2);
         return 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 }

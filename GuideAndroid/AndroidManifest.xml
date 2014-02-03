@@ -19,13 +19,11 @@
         android:required="true" />
 
     <application
+        android:name="edu.vanderbilt.vm.guide.util.SystemEnvoy"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Sherlock.Light.DarkActionBar" >
-        <uses-library
-            android:name="com.google.android.maps"
-            android:required="true" />
 
         <activity
             android:name="edu.vanderbilt.vm.guide.ui.GuideMain"

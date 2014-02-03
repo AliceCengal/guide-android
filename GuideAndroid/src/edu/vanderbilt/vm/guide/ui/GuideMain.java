@@ -55,51 +55,12 @@ public class GuideMain extends SherlockFragmentActivity implements SearchConfigR
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setupActionBar();
-        
-        Geomancer.activateGeolocation(this);
         
         if (savedInstanceState != null) {
             mAction.setSelectedNavigationItem(savedInstanceState.getInt(TAB_CACHE, 0));
         } else {
             mAction.setSelectedNavigationItem(1);
-        }
-        
-        try {
-            
-            File output = new File(getExternalFilesDir(null).getAbsolutePath() + GuideConstants.CACHE_FILENAME);
-            FileInputStream fis = new FileInputStream(output);
-            
-            //String path = cache.getAbsolutePath() + GuideConstants.CACHE_FILENAME;
-            
-            //LOGGER.info(path);
-            
-            JsonReader reader = new JsonReader(new InputStreamReader(fis));
-            String name;
-            
-            if (reader.peek() == JsonToken.END_DOCUMENT) {
-                //LOGGER.info("No cache found.");
-                
-            } else {
-            
-                reader.beginObject();
-                while (reader.hasNext()) {
-                    name = reader.nextName();
-                    if (name.equals(GuideConstants.CACHE_TAG_AGENDA)) {
-                        
-                        GlobalState.getUserAgenda().coalesce(Agenda.build(this, reader));
-                        
-                    } else {
-                        //LOGGER.info("skipped name: " + name);
-                        reader.skipValue();
-                    }
-                }
-                reader.endObject();
-                
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         
     }

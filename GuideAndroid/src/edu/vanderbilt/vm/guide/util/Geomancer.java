@@ -36,52 +36,17 @@ import edu.vanderbilt.vm.guide.ui.listener.GeomancerListener;
 public class Geomancer {
 
     private static final Logger logger = LoggerFactory.getLogger("util.Geomancer");
-
     private static final double DEFAULT_LONGITUDE = -86.803889;
-
     private static final double DEFAULT_LATITUDE = 36.147381;
-
     public static final double FEET_PER_METER = 3.28083989501312;
-
     public static final int FEET_PER_MILE = 5280;
-
-    private static Location sCurrLocation;
-
-    private static LocationManager sLocationManager;
-
-    private static LocationListener mLocListener = new LocationListener() {
-        @Override
-        public void onLocationChanged(Location location) {
-            // Called when a new location is found
-            // by the network location provider.
-            sCurrLocation = location;
-            logger.info("Receiving location at lat/lon {},{}", location.getLatitude(),
-                    location.getLongitude());
-
-            notifyObservers(location);
-
-        }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-    };
-
-    private final static int DEFAULT_RADIUS = 5; // 5 meters, for you americans
-                                                 // out there.
-
+    private final static int DEFAULT_RADIUS = 5; // 5 meters, for you americans out there.
     private final static int DEFAULT_TIMEOUT = 5000;
 
+    private static Location sCurrLocation;
+    private static LocationManager sLocationManager;
+    private static LocationListener mLocListener = defineLocListener();
     private static Location sDefaultLocation;
-
     private static ArrayList<GeomancerListener> mListeners = new ArrayList<GeomancerListener>();
 
     /**
@@ -106,7 +71,10 @@ public class Geomancer {
 
         double lat = placeCursor.getDouble(latIx);
         double lon = placeCursor.getDouble(lonIx);
-        double shortestDist = findDistance(location.getLatitude(), location.getLongitude(), lat,
+        double shortestDist = findDistance(
+        		location.getLatitude(), 
+        		location.getLongitude(), 
+        		lat,
                 lon);
         int closestIx = 0;
 
@@ -125,9 +93,18 @@ public class Geomancer {
 
     public static int findClosestNodeId(Location location, Context c) {
         SQLiteDatabase db = GlobalState.getReadableDatabase(c);
-        Cursor nodeCursor = db.query(NodeTable.NODE_TABLE_NAME, new String[] {
-                NodeTable.ID_COL, NodeTable.LAT_COL, NodeTable.LON_COL
-        }, null, null, null, null, null);
+        Cursor nodeCursor = db.query(
+        		NodeTable.NODE_TABLE_NAME, 
+        		new String[] {
+        				NodeTable.ID_COL, 
+        				NodeTable.LAT_COL, 
+        				NodeTable.LON_COL
+        		},
+        		null, 
+        		null, 
+        		null, 
+        		null, 
+        		null);
         
         nodeCursor.moveToPosition(findClosestNode(location, nodeCursor));
         return nodeCursor.getInt(nodeCursor.getColumnIndex(NodeTable.ID_COL));
@@ -155,14 +132,21 @@ public class Geomancer {
 
         double lat = nodeCursor.getDouble(latIx);
         double lon = nodeCursor.getDouble(lonIx);
-        double shortestDist = findDistance(location.getLatitude(), location.getLongitude(), lat,
+        double shortestDist = findDistance(
+        		location.getLatitude(), 
+        		location.getLongitude(), 
+        		lat,
                 lon);
         int closestIx = 0;
 
         while (nodeCursor.moveToNext()) {
             lat = nodeCursor.getDouble(latIx);
             lon = nodeCursor.getDouble(lonIx);
-            double dist = findDistance(location.getLatitude(), location.getLongitude(), lat, lon);
+            double dist = findDistance(
+            		location.getLatitude(), 
+            		location.getLongitude(), 
+            		lat, 
+            		lon);
             if (dist < shortestDist) {
                 shortestDist = dist;
                 closestIx = nodeCursor.getPosition();
@@ -314,4 +298,31 @@ public class Geomancer {
         return crit;
     }
 
+    private static LocationListener defineLocListener() {
+    	return new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found
+                // by the network location provider.
+                sCurrLocation = location;
+                logger.info("Receiving location at lat/lon {},{}", location.getLatitude(),
+                        location.getLongitude());
+
+                notifyObservers(location);
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+        };
+    }
 }

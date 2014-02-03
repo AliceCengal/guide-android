@@ -1,6 +1,8 @@
 
 package edu.vanderbilt.vm.guide.ui;
 
+import java.text.DecimalFormat;
+
 import android.os.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +45,12 @@ public class PlaceDetailerFragment extends SherlockFragment {
     private View    mView;
     private Menu    mMenu;
     private Handler mHandler;
+    private boolean isOnAgenda = false;
     private ImageDownloader.BitmapDownloaderTask mDlTask;
     
-    private boolean             isOnAgenda = false;
-    private static final Logger logger     = LoggerFactory.getLogger("ui.PlaceDetailerFragment");
-	private static final String PLC_ID     = "id";
+    private static final Logger logger    = LoggerFactory.getLogger("ui.PlaceDetailerFragment");
+    private static final String PLC_ID    = "id";
+    private static final DecimalFormat df = new DecimalFormat("#.##");
 
     /**
      * Create a new instance of the PlaceDetail fragment. This method returns a
@@ -96,7 +99,9 @@ public class PlaceDetailerFragment extends SherlockFragment {
                 int placeId = args.getInt(
                 		PLC_ID,
                         GuideConstants.BAD_PLACE_ID);
-                mPlace = getPlaceById(getActivity(), placeId);
+                mPlace = DBUtils.getPlaceById(
+                		placeId, 
+                		GlobalState.getReadableDatabase(null));
             }
         }
 
@@ -194,7 +199,9 @@ public class PlaceDetailerFragment extends SherlockFragment {
         		"<b>Hours:</b> " + mPlace.getHours()));
         
         tvPlaceGeo.setText(Html.fromHtml(
-        		"<b>Geopoint:</b> "));
+                "<b>Geopoint:</b> " 
+                + df.format(mPlace.getLatitude()) + ", " 
+                + df.format(mPlace.getLongitude())));
         
         tvPlaceMediae.setText(Html.fromHtml(
         		"<em>" + "Medias available." + "</em>"));
@@ -214,20 +221,6 @@ public class PlaceDetailerFragment extends SherlockFragment {
                         500); }}); // MAGIC
 
         mDlTask.execute(mPlace.getPictureLoc());
-    }
-
-    private static Place getPlaceById(Context ctx, int id) {
-        // XXX: We can get a null place here right now. This intentionally not
-        // being handled at the moment. I want the app to crash if we get a
-        // null place so we'll get a stack trace and find out what went wrong.
-        // We'll handle null places at a later time (after we've switched to a
-        // Content Provider model instead of a list-based model).
-        logger.trace("Finding place with id {}", id);
-        GuideDBOpenHelper helper = new GuideDBOpenHelper(ctx);
-        SQLiteDatabase db = helper.getReadableDatabase();
-        Place place = DBUtils.getPlaceById(id, db);
-        db.close();
-        return place;
     }
 
     private void setupUI() {
