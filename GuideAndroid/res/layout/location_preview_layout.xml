@@ -14,7 +14,6 @@
         android:layout_margin="4dp"
         android:layout_weight="45"
         android:adjustViewBounds="true"
-        android:contentDescription="@string/abs__action_bar_home_description"
         android:src="@drawable/tour_placeholder" />
 
     <LinearLayout

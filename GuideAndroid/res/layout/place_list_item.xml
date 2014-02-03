@@ -35,8 +35,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
-            android:src="@drawable/home"
-            android:contentDescription="@string/abs__action_bar_home_description"/>
+            android:src="@drawable/home"/>
 
         <TextView
             android:id="@+id/placelist_item_title"

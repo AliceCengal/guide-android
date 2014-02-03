@@ -14,6 +14,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,29 +30,24 @@ import edu.vanderbilt.vm.guide.util.GuideConstants;
 import edu.vanderbilt.vm.guide.util.ImageDownloader;
 
 public class PlaceDetailerFragment extends SherlockFragment {
-    private Place mPlace;
-
-    private TextView tvPlaceName;
-
-    private TextView tvPlaceDesc;
-
-    private TextView tvPlaceHours;
-
-    private ImageView ivPlaceImage;
-
-    private View mView;
-
-    private Menu mMenu;
-
-    private ImageDownloader.BitmapDownloaderTask mDlTask;
-
-    private boolean isOnAgenda = false;
-
-    private Handler mHandler;
-
-    private static final Logger logger = LoggerFactory.getLogger("ui.PlaceDetailerFragment");
 	
-    private static final String PLC_ID = "id";
+    private Place     mPlace;
+    private TextView  tvPlaceName;
+    private TextView  tvPlaceCat;
+    private TextView  tvPlaceHours;
+    private TextView  tvPlaceGeo;
+    private TextView  tvPlaceMediae;
+    private TextView  tvPlaceDesc;
+    private ImageView ivPlaceImage;
+    
+    private View    mView;
+    private Menu    mMenu;
+    private Handler mHandler;
+    private ImageDownloader.BitmapDownloaderTask mDlTask;
+    
+    private boolean             isOnAgenda = false;
+    private static final Logger logger     = LoggerFactory.getLogger("ui.PlaceDetailerFragment");
+	private static final String PLC_ID     = "id";
 
     /**
      * Create a new instance of the PlaceDetail fragment. This method returns a
@@ -62,8 +58,10 @@ public class PlaceDetailerFragment extends SherlockFragment {
      * @return
      */
     static PlaceDetailerFragment newInstance(Context ctx, int id) {
-        PlaceDetailerFragment frag = (PlaceDetailerFragment) Fragment.instantiate(ctx,
-                "edu.vanderbilt.vm.guide.ui.PlaceDetailerFragment");
+        PlaceDetailerFragment frag = (PlaceDetailerFragment) Fragment
+        		.instantiate(
+        				ctx, 
+        				"edu.vanderbilt.vm.guide.ui.PlaceDetailerFragment");
 
         Bundle arg = new Bundle();
         arg.putInt(PLC_ID, id);
@@ -73,8 +71,14 @@ public class PlaceDetailerFragment extends SherlockFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mView = inflater.inflate(R.layout.fragment_place_detailer, container, false);
+    public View onCreateView(
+    		LayoutInflater inflater, 
+    		ViewGroup container, 
+    		Bundle savedInstanceState) {
+        mView = inflater.inflate(
+        		R.layout.fragment_place_detailer, 
+        		container, 
+        		false);
         return mView;
     }
 
@@ -89,13 +93,12 @@ public class PlaceDetailerFragment extends SherlockFragment {
             Bundle args = getArguments();
             logger.debug("Using information from argument");
             if (args != null) {
-                int placeId = args.getInt(PLC_ID,
+                int placeId = args.getInt(
+                		PLC_ID,
                         GuideConstants.BAD_PLACE_ID);
                 mPlace = getPlaceById(getActivity(), placeId);
             }
         }
-
-        //updateInformation();
 
         /* Check if this place is already on Agenda */
         if (GlobalState.getUserAgenda().isOnAgenda(mPlace)) {
@@ -103,6 +106,7 @@ public class PlaceDetailerFragment extends SherlockFragment {
         } else {
             isOnAgenda = false;
         }
+        
         setupUI();
         updateInformation();
     }
@@ -119,7 +123,6 @@ public class PlaceDetailerFragment extends SherlockFragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
-
         inflater.inflate(R.menu.place_detail_activity, menu);
         this.mMenu = menu;
 
@@ -182,10 +185,21 @@ public class PlaceDetailerFragment extends SherlockFragment {
      * Update the information showed in the various Views based on mPlace
      */
     private void updateInformation() {
-        tvPlaceName.setText(
-                mPlace.getName());
-        tvPlaceHours.setText(mPlace.getHours());
-        tvPlaceDesc.setText(mPlace.getDescription());
+        tvPlaceName  .setText(mPlace.getName());
+        tvPlaceCat   .setText(Html.fromHtml(
+        		"<b>Category:</b> " + 
+        		mPlace.getCategories().get(0)));
+        
+        tvPlaceHours .setText(Html.fromHtml(
+        		"<b>Hours:</b> " + mPlace.getHours()));
+        
+        tvPlaceGeo.setText(Html.fromHtml(
+        		"<b>Geopoint:</b> "));
+        
+        tvPlaceMediae.setText(Html.fromHtml(
+        		"<em>" + "Medias available." + "</em>"));
+        
+        tvPlaceDesc  .setText(mPlace.getDescription());
 
         logger.trace("Starting image download task");
         mDlTask = new ImageDownloader.BitmapDownloaderTask(ivPlaceImage);
@@ -217,10 +231,13 @@ public class PlaceDetailerFragment extends SherlockFragment {
     }
 
     private void setupUI() {
-        tvPlaceName = (TextView)mView.findViewById(R.id.detailee_name);
-        tvPlaceHours = (TextView)mView.findViewById(R.id.other_descriptions);
-        tvPlaceDesc = (TextView)mView.findViewById(R.id.main_description);
-        ivPlaceImage = (ImageView)mView.findViewById(R.id.PlaceImage);
+        tvPlaceName   = (TextView)  mView.findViewById(R.id.fpd_tv1);
+        tvPlaceCat    = (TextView)  mView.findViewById(R.id.fpd_tv2);
+        tvPlaceHours  = (TextView)  mView.findViewById(R.id.fpd_tv3);
+        tvPlaceGeo    = (TextView)  mView.findViewById(R.id.fpd_tv4);
+        tvPlaceMediae = (TextView)  mView.findViewById(R.id.fpd_tv5);
+        tvPlaceDesc   = (TextView)  mView.findViewById(R.id.fpd_tv6);
+        ivPlaceImage  = (ImageView) mView.findViewById(R.id.fpd_image1);
     }
 
 }

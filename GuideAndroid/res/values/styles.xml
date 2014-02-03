@@ -2,7 +2,7 @@
 
     <style name="detail_name_text">
         <item name="android:textSize">18sp</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
         <item name="android:textColor">@android:color/black</item>
     </style>
 
